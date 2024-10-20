@@ -1,10 +1,15 @@
-import { loginUser, logout, registerUser } from './auth';
+import { loginUser, logout, registerUser } from "./auth";
+import { getProductBySlug, getProductByPage } from "./products";
 
 export const server = {
-  // actions
+    // actions
 
-  // Auth
-  loginUser,
-  logout,
-  registerUser,
-};
+    // auth
+    loginUser,
+    logout,
+    registerUser,
+
+    // products
+    getProductByPage,
+    getProductBySlug,
+}
