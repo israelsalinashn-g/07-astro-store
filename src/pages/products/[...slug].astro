@@ -6,7 +6,6 @@ import { actions } from "astro:actions";
 const { slug } = Astro.params;
 
 const { data, error } = await actions.getProductBySlug(slug ?? "");
-
 if (error) {
     return Astro.redirect("/404");
 }
@@ -15,6 +14,10 @@ const { product, images } = data;
 ---
 
 <MainLayout title={product.title} description={product.description}>
+    <!-- image={image} -->
+
+    <!-- <h1>{product.title}</h1> -->
+
     <div class="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
         <ProductSlideshow images={images} />
 
@@ -38,7 +41,8 @@ const { product, images } = data;
                 <button class="btn-quantity">+</button>
             </div>
 
-            <button class="mt-5 bg-blue-500 text-white p-3 w-full"
+            <button
+                class="mt-5 bg-blue-500 text-white p-3 w-full disabled:bg-gray-500"
                 >Añadir al carrito</button
             >
 
@@ -51,12 +55,20 @@ const { product, images } = data;
 </MainLayout>
 
 <script>
-    const sizeElements = document.querySelectorAll("li");
+    import { CartCookiesClient } from "@/utils";
+    import { itemsInCart } from "@/store";
+    import { navigate } from "astro:transitions/client";
 
-    sizeElements.forEach((liElement) => {
-        liElement.addEventListener("click", () => {
-            sizeElements.forEach((s) => s.classList.remove("selected-size"));
-            liElement.classList.add("selected-size");
+    document.addEventListener("astro:page-load", () => {
+        const sizeElements = document.querySelectorAll("li");
+
+        sizeElements.forEach((liElement) => {
+            liElement.addEventListener("click", () => {
+                sizeElements.forEach((s) =>
+                    s.classList.remove("selected-size"),
+                );
+                liElement.classList.add("selected-size");
+            });
         });
 
         const quantityInput = document.querySelector(
@@ -67,8 +79,11 @@ const { product, images } = data;
         ) as HTMLInputElement;
 
         let quantity = 1;
-        const [decrementButton, incrementButton, addToCartButton] =
+
+        const [decrementButton, incrementButton, addToCardButton] =
             document.querySelectorAll("button");
+
+        if (!incrementButton || !quantityInput) return;
 
         incrementButton.addEventListener("click", () => {
             quantity = Math.min(quantity + 1, 5);
@@ -80,17 +95,25 @@ const { product, images } = data;
             quantityInput.value = quantity.toString();
         });
 
-        addToCartButton.addEventListener("click", () => {
+        addToCardButton.addEventListener("click", async () => {
             const size = document.querySelector(".selected-size")?.textContent;
             if (!size) {
                 return alert("Seleccione una talla");
             }
 
-            console.log({
-                id: productIdInput.value,
+            addToCardButton.disabled = true;
+
+            const cart = CartCookiesClient.addItem({
+                productId: productIdInput.value,
                 size: size,
                 quantity: quantity,
             });
+
+            itemsInCart.set(cart.length);
+
+            // TODO: cambiar luego cuando tengamos los ViewTransitions
+            // window.location.href = '/cart';
+            await navigate("/cart");
         });
     });
 </script>

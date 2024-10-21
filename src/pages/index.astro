@@ -1,5 +1,5 @@
 ---
-import { ProductList } from "@/components/Products/ProductList";
+import { ProductList } from "@/components/products/ProductList";
 import Pagination from "@/components/shared/Pagination.astro";
 import MainLayout from "@/layouts/MainLayout.astro";
 import { actions } from "astro:actions";
@@ -16,6 +16,10 @@ if (error) {
 }
 
 const { products, totalPages } = data;
+
+if (data.products.length === 0) {
+  return Astro.redirect(`/?page=${totalPages}`);
+}
 ---
 
 <MainLayout>

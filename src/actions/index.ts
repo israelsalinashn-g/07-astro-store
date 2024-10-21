@@ -1,15 +1,20 @@
-import { loginUser, logout, registerUser } from "./auth";
-import { getProductBySlug, getProductByPage } from "./products";
+import { loginUser, logout, registerUser } from './auth';
+import { getProductBySlug } from './products/get-product-by-slug.action';
+import { getProductByPage } from './products/get-product-by-page.action';
+import { loadProductsFromCart } from './cart';
 
 export const server = {
     // actions
 
-    // auth
+    // Auth
     loginUser,
     logout,
     registerUser,
 
-    // products
+    // Products
     getProductByPage,
     getProductBySlug,
-}
+
+    //Cart
+    loadProductsFromCart,
+};
